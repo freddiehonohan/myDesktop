@@ -1,16 +1,17 @@
 #!/usr/bin/python
 from twisted.internet.protocol import Factory, Protocol
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from getIPAddr import getIP
-import qt4reactor
+import qt5reactor
 import myDesktopServerProtocol as serverProtocol
 import sys
 import os
 import input_event as input
 
 app = QApplication(sys.argv)
-qt4reactor.install( )
+qt5reactor.install( )
 
 class rdcProtocol(serverProtocol.RDCServerProtocol):
     """
@@ -114,14 +115,14 @@ class RDCServerGUI(QDialog):
         mainLayout.addWidget(self.groupbox,  0, 0)
         mainLayout.addWidget(self.hostLab,   1, 0)
         mainLayout.addLayout(self.butLayout, 2, 0)
-        mainLayout.setMargin(10)
+        mainLayout.setContentsMargins(10,10,10,10)
         self.setLayout(mainLayout)
 
         self.reactor    = reactor
         self.running    = False
 
-        QObject.connect(self.startStopBut, SIGNAL('clicked( )'), self.onStartStop)
-        QObject.connect(self.quitBut,      SIGNAL('clicked( )'), self.quit)
+        self.startStopBut.clicked.connect(self.onStartStop)
+        self.quitBut.clicked.connect(self.quit)
 
     def setupUI(self):
         #self.resize(300, 200)
@@ -131,7 +132,7 @@ class RDCServerGUI(QDialog):
         # Setting style
         QApplication.setStyle(QStyleFactory.create('cleanlooks'))
         QApplication.setPalette(QApplication.style().standardPalette())
-        self.setStyleSheet(open(os.path.dirname(__file__) + '/styleSheet.qss', 'r').read( ))
+        self.setStyleSheet(open(os.path.dirname(os.path.realpath(__file__)) + '/styleSheet.qss', 'r').read( ))
 
         # Label
         self.hostLab  = QLabel('')

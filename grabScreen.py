@@ -3,15 +3,14 @@
 this program responsible image split, merge, or the basic 
 image matching
 """
-
-from PyQt4.QtGui import (QApplication, 
-                         QPixmap,
+from PyQt5.QtWidgets import (QApplication)
+from PyQt5.QtGui import (QPixmap,
                          QImage, 
                          qRgba, 
                          qGray, 
                          qAlpha)
 
-from PyQt4.QtCore import QSize
+from PyQt5.QtCore import QSize
 
 def grab( ):
     pix = QPixmap.grabWindow(QApplication.desktop( ).winId( ))

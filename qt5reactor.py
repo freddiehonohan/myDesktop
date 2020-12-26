@@ -5,8 +5,8 @@ This module provides support for Twisted to be driven by the Qt mainloop.
 
 In order to use this support, simply do the following::
     |  app = QApplication(sys.argv) # your code to init Qt
-    |  import qt4reactor
-    |  qt4reactor.install()
+    |  import qt5reactor
+    |  qt5reactor.install()
 
 alternatively:
 
@@ -36,22 +36,22 @@ Subsequent port by therve
 
 import sys
 import time
-from zope.interface import implements
+from zope.interface import implementer
 from twisted.internet.interfaces import IReactorFDSet
 from twisted.python import log, runtime
 from twisted.internet import posixbase
 from twisted.python.runtime import platformType, platform
 
-try:
-    from PyQt4.QtCore import (QSocketNotifier, QObject, SIGNAL,
-                              QTimer, QCoreApplication, QEventLoop)
-except ImportError:
-    from PySide.QtCore import (QSocketNotifier, QObject, SIGNAL,
-                               QTimer, QCoreApplication, QEventLoop)
+# try:
+from PyQt5.QtCore import (QSocketNotifier, QObject,
+                          QTimer, QCoreApplication, QEventLoop)
+# except ImportError:
+#     from PySide2.QtCore import (QSocketNotifier, QObject, SIGNAL,
+#                                 QTimer, QCoreApplication, QEventLoop)
 
 
 class TwistedSocketNotifier(QObject):
-    """
+    """x
     Connection between an fd event and reader/writer callbacks.
     """
 
@@ -66,11 +66,11 @@ class TwistedSocketNotifier(QObject):
             self.fn = self.read
         else:
             self.fn = self.write
-        QObject.connect(self.notifier, SIGNAL("activated(int)"), self.fn)
+        self.notifier.activated.connect(self.fn)
 
     def shutdown(self):
         self.notifier.setEnabled(False)
-        self.disconnect(self.notifier, SIGNAL("activated(int)"), self.fn)
+        self.notifier.activated.disconnect(self.fn)
         self.fn = self.watcher = None
         self.notifier.deleteLater()
         self.deleteLater()
@@ -123,8 +123,8 @@ class TwistedSocketNotifier(QObject):
         log.callWithLogger(w, _write)
 
 
+@implementer(IReactorFDSet)
 class QtReactor(posixbase.PosixReactorBase):
-    implements(IReactorFDSet)
 
     def __init__(self):
         self._reads = {}
@@ -132,7 +132,7 @@ class QtReactor(posixbase.PosixReactorBase):
         self._notifiers = {}
         self._timer = QTimer()
         self._timer.setSingleShot(True)
-        QObject.connect(self._timer, SIGNAL("timeout()"), self.iterate)
+        self._timer.timeout.connect(self.iterate)
 
         if QCoreApplication.instance() is None:
             # Application Object has not been started yet
@@ -226,6 +226,9 @@ class QtReactor(posixbase.PosixReactorBase):
         This method is called by a Qt timer or by network activity
         on a file descriptor
         """
+        if delay == None:
+            delay = 0
+
         if not self.running and self._blockApp:
             self._blockApp.quit()
         self._timer.stop()
@@ -302,6 +305,8 @@ class QtEventReactor(QtReactor):
 
     def timeout(self):
         t = super(QtEventReactor, self).timeout()
+        if t == None:
+            t = 1
         return min(t, 0.01)
 
     def iterate(self, delay=None):
@@ -338,5 +343,5 @@ if runtime.platform.getType() == 'win32':
 else:
     install = posixinstall
 
-    
+
 __all__ = ["install"]

@@ -1,10 +1,11 @@
 #!/usr/bin/python
 from twisted.internet.protocol import Protocol, Factory, ClientFactory
 from twisted.python import log
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 import myDesktopClientProtocol as clientProtocol
-import qt4reactor
+import qt5reactor
 import sys
 import os
 
@@ -15,7 +16,7 @@ app = QApplication(sys.argv)
 __applib__  = os.path.dirname(os.path.realpath(__file__))
 __appicon__ = os.path.dirname(os.path.realpath(__file__))
 
-qt4reactor.install( )
+qt5reactor.install( )
 
 class RDCToGUI(clientProtocol.rdc):
     def __init__(self):
@@ -170,12 +171,12 @@ class myDesktopViewer(QMainWindow):
         displayWidget = QWidget( )
         vbox   = QVBoxLayout(displayWidget)
         vbox.addWidget(self.display)
-        vbox.setMargin(0)
+        vbox.setContentsMargins(0,0,0,0)
         self.setCentralWidget(displayWidget)
 
     def connectionStart(self):
         self.client = RDCFactory(display=self.display, password='1234')
-        reactor.connectTCP('192.168.1.103', 5000, self.client)
+        reactor.connectTCP('127.0.0.1', 5000, self.client)
         
     def connectionStop(self):
         reactor.stop( )
