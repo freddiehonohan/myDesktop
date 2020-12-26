@@ -55,22 +55,22 @@ class RDCServerProtocol(Protocol):
         log.msg('connectionMade')
         if not self.factory.password:
             self.state = 'REGISTERED'
-            self.transport.write(self._pack(msgTypes.AUTHENTICATION, block=1))
+            self.transport.write(self._pack(msgTypes.AUTHENTICATION, block=1).encode('utf-8'))
         else: 
-            self.transport.write(self._pack(msgTypes.AUTHENTICATION, block=2))
+            self.transport.write(self._pack(msgTypes.AUTHENTICATION, block=2).encode('utf-8'))
         #self.readyConnection(self)
 
     def _handleClientAuth(self, client_password):
         log.msg('_handleClientAuth')
         if self.factory.password == str(client_password):
             self.state = 'REGISTERED'
-            self.transport.write(self._pack(msgTypes.AUTH_RESULT, block=0))
+            self.transport.write(self._pack(msgTypes.AUTH_RESULT, block=0).encode('utf-8'))
 
         elif self.factory.password != str(client_password):
-            self.transport.write(self._pack(msgTypes.AUTH_RESULT, block=1))
+            self.transport.write(self._pack(msgTypes.AUTH_RESULT, block=1).encode('utf-8'))
 
         elif self._logTimes >= self.logMaxTimes: 
-            self.transport.write(self._pack(msgTypes.AUTH_RESULT, block=2))
+            self.transport.write(self._pack(msgTypes.AUTH_RESULT, block=2).encode('utf-8'))
 
     def _pack(self, key, **kw):
         message = "{%s: %s}" % (key, kw)
@@ -80,7 +80,7 @@ class RDCServerProtocol(Protocol):
 
     def doFramebufferUpdate(self, width=1366, height=760): 
         framebuffer = self._makeFramebuffer(width, height)
-        self.transport.write(self._pack(msgTypes.FRAME_UPDATE, framebuffer=framebuffer))
+        self.transport.write(self._pack(msgTypes.FRAME_UPDATE, framebuffer=framebuffer).encode('utf-8'))
 
     def doKeyEvent(self, key, flag=1):
         self.handleKeyEvent(key, flag)
@@ -101,7 +101,7 @@ class RDCServerProtocol(Protocol):
         """
         get server cut text to client
         """
-        self.transport(self._pack(msgTypes.CUT_TEXT, text=text))
+        self.transport(self._pack(msgTypes.CUT_TEXT, text=text).encode('utf-8'))
         
         
 class RDCFactory(Factory):

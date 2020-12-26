@@ -13,7 +13,7 @@ import base64
 
 class rdc(Protocol): 
     def __init__(self): 
-        self._packet       = ""
+        self._packet       = b""
         self._expected_len = 0
          
     def _doClientInitialization(self):
@@ -21,7 +21,7 @@ class rdc(Protocol):
         pass
 
     def dataReceived(self, data):
-        self._packet += data
+        self._packet += data#.decode('utf-8')
         if self._expected_len == 0: 
             buffer = data.split('@')
             self._expected_len, self._packet = int(buffer[0]), "@".join(buffer[1:])
@@ -103,20 +103,20 @@ class rdc(Protocol):
     ## Client >> Server messages ##
     #-----------------------------#
     def framebufferUpdateRequest(self, width, height):
-        self.transport.write(self._pack(msgTypes.FRAME_UPDATE, width=width, height=height))
+        self.transport.write(self._pack(msgTypes.FRAME_UPDATE, width=width, height=height).encode('utf-8'))
         
     def keyEvent(self, key, flag):
-        self.transport.write(self._pack(msgTypes.KEY_EVENT, key=key, flag=flag))
+        self.transport.write(self._pack(msgTypes.KEY_EVENT, key=key, flag=flag).encode('utf-8'))
 
     def pointerEvent(self, x, y, buttonmask, flag=None):
-        self.transport.write(self._pack(msgTypes.POINTER_EVENT, x=x, y=y, buttonmask=buttonmask, flag=flag))
+        self.transport.write(self._pack(msgTypes.POINTER_EVENT, x=x, y=y, buttonmask=buttonmask, flag=flag).encode('utf-8'))
 
     def clientCutText(self, text): 
         log.msg("clientCutText; text=%s" % (text))
-        self.transport.write(self._pack(msgTypes.CUT_TEXT, text=text))
+        self.transport.write(self._pack(msgTypes.CUT_TEXT, text=text).encode('utf-8'))
 
     def sendPassword(self, password):
-        self.transport.write(self._pack(msgTypes.AUTHENTICATION, client_password=password))
+        self.transport.write(self._pack(msgTypes.AUTHENTICATION, client_password=password).encode('utf-8'))
 
     #----------------------------#
     ## Overiding on application ##
